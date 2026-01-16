@@ -25,9 +25,10 @@ int main(int argc, char* argv[])
    char direction;
    int distance;
    int position = 50;
-   int combination = 0;
+   int numtimes_zero_ending = 0;
+   int numtimes_zero_total = 0;
+   
    while (getline(fin, line)) {
-      cout << line << "\n";
       direction = line[0];
       distance = atoi(line.substr(1).c_str());
 
@@ -35,27 +36,46 @@ int main(int argc, char* argv[])
          distance = -distance;
       }
 
-      cout << distance << "\n";
-
       while (distance != 0) {
-         if ((distance + position > 99)) {
-            distance -= (100 - position);
-            position = 0;
-         } else if (distance + position < 0) {
-            distance += (position + 1);
-            position = 99;
+         if (distance < 0) {
+            //Left turn
+            if (position > 0) {
+               if (abs(distance) >= abs(position)) {
+                  distance += position;
+                  position = 0;
+                  numtimes_zero_total++;
+               } else {
+                  position += distance;
+                  distance = 0;
+               }
+            } else {
+               if (abs(distance) < 100) {
+                  position = 100 + distance;
+                  distance = 0;
+               } else {
+                  distance += 100;
+                  numtimes_zero_total++;
+               }
+            }
          } else {
-            position += distance;
-            distance = 0;
+            // Right turn
+            if (distance + position > 99) {
+               distance -= (100 - position);
+               position = 0;
+               numtimes_zero_total++;
+            } else {
+               position += distance;
+               distance = 0;
+            }
          }
-         cout << "distance is " << distance << "\n";
       }
 
       if (position == 0) {
-         combination++;
+         numtimes_zero_ending++;
       }
    }
 
-   cout << "Combination is " << combination << "\n";
+   cout << "Part 1 answer is " << numtimes_zero_ending << "\n";
+   cout << "Part 2 answer is " << numtimes_zero_total << "\n";
    return 0;
 }

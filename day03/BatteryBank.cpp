@@ -13,29 +13,38 @@ BatteryBank::BatteryBank(const string& battery_bank_str)
     }
 }
 
-unsigned int BatteryBank::compute_max_joltage()
+void BatteryBank::select_max_battery_in_subbank(
+        size_t start_pos,               size_t end_pos,
+        unsigned long& _OUT__max_power, size_t& _OUT__max_power_pos)
 {
-    size_t first_max_battery_pos = 0;
-    unsigned int first_max_battery_power = 0;
-
-    for (size_t bpos = 0; bpos < bank.size() - 1; bpos++) {
-        unsigned int battery_power = bank[bpos];
-        if ((bpos == 0) ||  (battery_power > first_max_battery_power)) {
-            first_max_battery_power = battery_power;
-            first_max_battery_pos = bpos;
+    for (size_t i = start_pos; i < end_pos; i++) {
+        if ((i == start_pos) || (bank[i] > _OUT__max_power)) {
+            _OUT__max_power = bank[i];
+            _OUT__max_power_pos = i;
         }
     }
+}
 
-    unsigned int second_max_power = 0;
-    size_t second_max_power_bpos = 0;;
+unsigned long long BatteryBank::compute_max_joltage(const size_t& battery_count)
+{
+    size_t start_pos = 0;
+    unsigned long max_power;
+    size_t max_power_pos;
+    unsigned long long max_joltage = 0;
 
-    for (size_t bpos = first_max_battery_pos + 1; bpos < bank.size(); bpos++) {
-        unsigned int battery_power = bank[bpos];
-        if ((bpos == first_max_battery_pos + 1) || (battery_power > second_max_power)) {
-            second_max_power = battery_power;
-            second_max_power_bpos = bpos;
+
+    for (size_t count = battery_count; count > 0; count--) {
+        select_max_battery_in_subbank(
+                start_pos, bank.size() - (count - 1),
+                max_power, max_power_pos);
+        for (size_t i = 1; i < count; i++) {
+            max_power *= 10;
         }
+        max_joltage += max_power;
+        start_pos = max_power_pos + 1;
+        max_power = 0;
+        max_power_pos = 0;
     }
 
-    return (bank[first_max_battery_pos] * 10) + bank[second_max_power_bpos];
+    return max_joltage;
 }

@@ -22,14 +22,17 @@ int main(int argc, char** argv)
     }
 
     string line;
-    unsigned long long p1_answer = 0;    
+    unsigned long long p1_answer = 0; 
+    unsigned long long p2_answer = 0;
     while (getline(fin, line)) {
         BatteryBank battery_bank(line);
-        p1_answer += battery_bank.compute_max_joltage();
+        p1_answer += battery_bank.compute_max_joltage(2);
+        p2_answer += battery_bank.compute_max_joltage(12);
     }
 
     fin.close();
     cout << "Day 3, Part 1 Answer is " << p1_answer << "\n";
+    cout << "Day 3, Part 2 Answer is " << p2_answer << "\n";
 
     return 0;
 }
